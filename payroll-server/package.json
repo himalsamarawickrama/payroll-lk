@@ -1,0 +1,11 @@
+﻿{
+  "name": "payroll-server",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "mkdir -p dist && echo 'console.log(\"Server running\")' > dist/server.js",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {}
+}
