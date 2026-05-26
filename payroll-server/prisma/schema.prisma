@@ -1,0 +1,96 @@
+datasource db {
+    provider = "postgresql" // Fixed: spelled "provider" correctly
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+// Employee Table
+model Employee {
+    id             String       @id @default(uuid()) // Fixed: Capitalized "String"
+    employeeId     String       @unique              // Fixed: Corrected "string" spelling
+    fullName       String                            // Fixed: Capitalized "String"
+    nicNumber      String       @unique              // Fixed: Capitalized "String"
+    epfNumber      String       @unique              // Fixed: Capitalized "String"
+    department     String                            // Fixed: Corrected spelling and capitalized "String"
+    basicSalary    Float                             // Fixed: Capitalized "Float"
+    fixedAllowance Float                             // Fixed: Capitalized "Float"
+    createdAt      DateTime     @default(now())
+
+    // Relations 
+    payrolls    Payroll[]
+    payslips    Payslip[]
+    attendances Attendance[]
+    leaves      Leave[]
+    User        User?
+}
+
+// Payroll Table
+model Payroll {
+    id                 String   @id @default(uuid()) // Fixed: Capitalized "String"
+    employeeId         String                        // Fixed: Capitalized "String"
+    monthYear          String                        // Fixed: Capitalized "String"
+    grossEarnings      Float                         // Fixed: Capitalized "Float"
+    employeeEpfAmount  Float                         // 8% deduction (Fixed: Capitalized "Float")
+    employerEpfAmount  Float                         // 12% contribution (Fixed: Changed name so it is unique)
+    employerEtfAmount  Float                         // 3% contribution (Fixed: Changed name to employerEtfAmount)
+    apitTaxAmount      Float                         // Fixed: Capitalized "Float"
+    netSalary          Float                         // Fixed: Capitalized "Float"
+    status             String                        // Fixed: Capitalized "String"
+    processedAt        DateTime @default(now())
+
+    // Connect employeeId back to employee profile row
+    employee Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade) // Fixed: Changed references to lowercase [id]
+    payslips Payslip[]
+}
+
+// Payslip Table
+model Payslip {
+    id         String    @id @default(uuid()) // Fixed: Capitalized "String"
+    payrollId  String                         // Fixed: Capitalized "String"
+    employeeId String                         // Fixed: Capitalized "String"
+    pdfUrl     String                         // Fixed: Capitalized "String"
+    isSent     Boolean   @default(false)      // Fixed: Capitalized "Boolean"
+    sentAt     DateTime?
+
+    payroll  Payroll  @relation(fields: [payrollId], references: [id], onDelete: Cascade)
+    employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+}
+
+// Attendance Table
+model Attendance {
+    id         String   @id @default(uuid()) // Fixed: Capitalized "String"
+    employeeId String                        // Fixed: Capitalized "String"
+    date       DateTime
+    inTime     DateTime
+    outTime    DateTime
+    overTime   Float    @default(0)          // Fixed: Capitalized "Float"
+
+    employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+}      
+
+// Leave Table
+model Leave {
+    id         String   @id @default(uuid()) // Fixed: Capitalized "String"
+    employeeId String                        // Fixed: Capitalized "String"
+    startDate  DateTime
+    endDate    DateTime
+    totalDays  Int                           // Fixed: Capitalized "Int"
+    status     String                        // Fixed: Capitalized "String"
+
+    employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+}
+
+// User Table
+model User {
+    id         String    @id @default(uuid()) // Fixed: Capitalized "String"
+    email      String    @unique              // Fixed: Capitalized "String"
+    password   String                         // Fixed: Capitalized "String"
+    role       String                         // Fixed: Capitalized "String"
+    employeeId String?   @unique              // Fixed: Capitalized "String"
+    lastLogin  DateTime?                      // Fixed: Made optional with ? since user might not have logged in yet
+
+    employee Employee? @relation(fields: [employeeId], references: [id])
+}
